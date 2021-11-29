@@ -1,7 +1,15 @@
 import { Component, ViewChild } from '@angular/core';
-import { TableField, TableRow, PrintConfig,
-  TableVirtualScrollDataSource, TableSelectionMode,
-  DynamicMatTableComponent, TablePagination, TableSetting, RowActionMenu } from 'dynamic-mat-table';
+import {
+  ContextMenuItem,
+  DynamicMatTableComponent,
+  PrintConfig,
+  TableField,
+  TablePagination,
+  TableRow,
+  TableSelectionMode,
+  TableSetting
+} from 'dynamic-mat-table';
+import { BehaviorSubject } from 'rxjs';
 
 const DATA = getData(1000);
 @Component({
@@ -14,16 +22,16 @@ export class AppComponent {
   eventLog = [];
   // required
   fields: TableField<any>[] = [];
-  dataSource = new TableVirtualScrollDataSource([]);
-  // optinaol
+  dataSource = new BehaviorSubject<any[]>(DATA);
+  // optional
   setting: TableSetting;
-  rowActionMenu: RowActionMenu[] = [];
+  rowActionMenu: ContextMenuItem[] = [];
   stickyHeader = true;
   showNoData = true;
   showProgress = true;
   pending = false;
   tableSelection: TableSelectionMode = 'none';
-  conditinalClass = false;
+  conditionalClass = false;
   pagination: TablePagination = { pageIndex: 0, pageSize: 10 };
   enablingPagination = false;
   direction: 'rtl' | 'ltr' = 'ltr';
@@ -60,14 +68,14 @@ export class AppComponent {
   }
 
   fetchData_onClick() {
-    this.dataSource = new TableVirtualScrollDataSource(DATA);
+    this.dataSource.next(DATA);
   }
 
   table_onChangeSetting(setting) {
     console.log(setting);
   }
 
-  tableonRowActionChange(e) {
+  table_onRowActionChange(e) {
     this.eventLog.push(e);
   }
 
@@ -100,24 +108,18 @@ export class AppComponent {
     this.fields.push({
       name: 'type', header: 'Car Type'
     });
-    const cloned = this.fields.map(x => Object.assign({}, x));
-    this.fields = cloned;
+    this.fields = this.fields.map(x => Object.assign({}, x));
   }
 
   addNewLongColumn_onClick() {
     this.fields.push({
       name: 'longText', header: 'Long Text'
     });
-    const cloned = this.fields.map(x => Object.assign({}, x));
-    this.fields = cloned;
+    this.fields = this.fields.map(x => Object.assign({}, x));
   }
 
   paginationMode_onClick() {
-    if ( this.enablingPagination === true) {
-      this.enablingPagination = false;
-    } else {
-      this.enablingPagination = true;
-    }
+    this.enablingPagination = this.enablingPagination !== true;
   }
 
   direction_onClick() {
