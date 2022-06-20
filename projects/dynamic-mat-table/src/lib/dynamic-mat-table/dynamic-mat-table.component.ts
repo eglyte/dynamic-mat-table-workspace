@@ -1,5 +1,22 @@
-import { Component, OnInit, AfterViewInit,
-         QueryList, ElementRef, ViewChild, TemplateRef, Renderer2, ChangeDetectorRef, Input, OnDestroy, ContentChildren, ViewContainerRef, Injector, ComponentRef, HostBinding, ChangeDetectionStrategy} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  QueryList,
+  ElementRef,
+  ViewChild,
+  TemplateRef,
+  Renderer2,
+  ChangeDetectorRef,
+  Input,
+  OnDestroy,
+  ContentChildren,
+  ViewContainerRef,
+  Injector,
+  ComponentRef,
+  HostBinding,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { TableCoreDirective } from '../cores/table.core.directive';
 import { TableService } from './dynamic-mat-table.service';
 import { TableRow } from '../models/table-row.model';
@@ -30,24 +47,25 @@ export const tableAnimation = trigger('tableAnimation', [
   transition('void => *', [
     query(':enter', style({ transform: 'translateX(-50%)', opacity: 0 }), {
       //limit: 5,
-      optional: true,
+      optional: true
     }),
     query(':enter',
       stagger('0.01s', [
         animate('0.5s ease', style({ transform: 'translateX(0%)', opacity: 1 })
-        ),
+        )
       ]),
       {
         //limit: 5,
-        optional: true }
-    ),
-  ]),
+        optional: true
+      }
+    )
+  ])
 ]);
 
 export const expandAnimation = trigger('detailExpand', [
-  state('collapsed', style({height: '0px', minHeight: '0'})),
-  state('expanded', style({height: '*'})),
-  transition('expanded <=> collapsed', animate('100ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+  state('collapsed', style({ height: '0px', minHeight: '0' })),
+  state('expanded', style({ height: '*' })),
+  transition('expanded <=> collapsed', animate('100ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
 ]);
 
 @Component({
@@ -56,16 +74,18 @@ export const expandAnimation = trigger('detailExpand', [
   templateUrl: './dynamic-mat-table.component.html',
   styleUrls: ['./dynamic-mat-table.component.scss'],
   animations: [tableAnimation, expandAnimation],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirective<T> implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('tbl', {static: true}) tbl;
+  @ViewChild('tbl', { static: true }) tbl;
+
   @Input()
   get setting() {
     return this.tableSetting;
   }
+
   set setting(value: TableSetting) {
-    if ( !isNullorUndefined(value) ) {
+    if (!isNullorUndefined(value)) {
       value.columnSetting = value.columnSetting || this.tableSetting.columnSetting;
       value.alternativeRowStyle = value.alternativeRowStyle || this.tableSetting.alternativeRowStyle;
       value.columnSetting = value.columnSetting || this.tableSetting.columnSetting;
@@ -74,11 +94,12 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
       value.visibaleActionMenu = value.visibaleActionMenu || this.tableSetting.visibaleActionMenu;
       value.visibleTableMenu = value.visibleTableMenu || this.tableSetting.visibleTableMenu;
       value.autoHeight = value.autoHeight || this.tableSetting.autoHeight;
-      value.saveSettingMode = value.saveSettingMode ||  this.tableSetting.saveSettingMode || 'simple';
+      value.saveSettingMode = value.saveSettingMode || this.tableSetting.saveSettingMode || 'simple';
       this.tableSetting = value;
       this.setDisplayedColumns();
     }
   }
+
   init = false;
 
   @HostBinding('style.height.px') height = null;
@@ -89,7 +110,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   @ViewChild('printRef', { static: true }) printRef !: TemplateRef<any>;
   @ViewChild('printContentRef', { static: true }) printContentRef !: ElementRef;
   @ContentChildren(HeaderFilterComponent) headerFilterList !: QueryList<HeaderFilterComponent>;
-  private dragDropData = {dragColumnIndex: -1, dropColumnIndex: -1};
+  private dragDropData = { dragColumnIndex: -1, dropColumnIndex: -1 };
   private eventsSubscription: Subscription;
   printing = true;
   printTemplate: TemplateRef<any> = null;
@@ -108,11 +129,12 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
     public cdr: ChangeDetectorRef,
     public overlay: Overlay,
     private overlayContainer: OverlayContainer,
-    private overlayPositionBuilder: OverlayPositionBuilder,
+    private overlayPositionBuilder: OverlayPositionBuilder
   ) {
     super(tableService, cdr);
-    this.overlayContainer.getContainerElement().addEventListener('contextmenu', (e) =>{
-      e.preventDefault(); return false;
+    this.overlayContainer.getContainerElement().addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      return false;
     });
 
     this.eventsSubscription = this.resizeColumn.widthUpdate.pipe(delay(100)).subscribe((data) => {
@@ -127,17 +149,18 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   ngAfterViewInit(): void {
     this.tvsDataSource.paginator = this.paginator;
     this.tvsDataSource.sort = this.sort;
-    this.dataSource.subscribe(x => {
-      x = x || [];
-      this.rowSelectionModel.clear();
-      this.tvsDataSource.data = [];
-      this.initSystemField(x);
-      this.tvsDataSource.data = x;
-      // this.cdr.detectChanges();
-      this.refreshUI();
-      // window.requestAnimationFrame(() => {
-      // });
-    });
+    this.dataSource.subscribe((x) => {
+        x = x || [];
+        this.rowSelectionModel.clear();
+        this.tvsDataSource.data = [];
+        this.initSystemField(x);
+        this.tvsDataSource.data = x;
+        // this.cdr.detectChanges();
+        this.refreshUI();
+        // window.requestAnimationFrame(() => {
+        // });
+      }
+    );
 
     this.tvsDataSource.sort.sortChange.subscribe(sort => {
       this.pagination.pageIndex = 0;
@@ -146,10 +169,10 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   }
 
 
-  tooltip_onChanged(column: TableField<T>, row: any ,elementRef: any, show: boolean) {
-    if (column.cellTooltipEnable === true ) {
-      if(show === true && row[column.name] ) {
-        if(this.overlayRef !== null) {
+  tooltip_onChanged(column: TableField<T>, row: any, elementRef: any, show: boolean) {
+    if (column.cellTooltipEnable === true) {
+      if (show === true && row[column.name]) {
+        if (this.overlayRef !== null) {
           this.closeTooltip();
         }
 
@@ -159,7 +182,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
             originY: 'top',
             overlayX: 'center',
             overlayY: 'bottom',
-            offsetY: -8,
+            offsetY: -8
           }]);
 
 
@@ -171,7 +194,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
           }
         ]);
         const tooptipRef: ComponentRef<TooltipComponent> = this.overlayRef.attach(new ComponentPortal(TooltipComponent, null, injector));
-      } else if(show === false && this.overlayRef !== null) {
+      } else if (show === false && this.overlayRef !== null) {
         this.closeTooltip();
       }
     }
@@ -181,8 +204,9 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
     this.overlayRef?.detach();
     this.overlayRef = null;
   }
-  ellipsis( column: TableField<T>, cell: boolean = true) {
-    if(cell === true && column.cellEllipsisRow > 0) {
+
+  ellipsis(column: TableField<T>, cell: boolean = true) {
+    if (cell === true && column.cellEllipsisRow > 0) {
       return {
         'display': '-webkit-box',
         '-webkit-line-clamp': column?.cellEllipsisRow,
@@ -190,7 +214,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
         'overflow': 'hidden',
         'white-space': 'pre-wrap'
       };
-    } else if(cell === true && column.headerEllipsisRow > 0) {
+    } else if (cell === true && column.headerEllipsisRow > 0) {
       return {
         'display': '-webkit-box',
         '-webkit-line-clamp': column?.headerEllipsisRow,
@@ -216,7 +240,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   }
 
   public refreshUI() {
-    if(this.tableSetting.autoHeight === true) {
+    if (this.tableSetting.autoHeight === true) {
       this.height = this.autoHeight();
     } else {
       this.height = null;
@@ -236,7 +260,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
 
     scrollStrategy.offsetChange.subscribe(offset => {
     })
-    this.viewport.renderedRangeStream.subscribe( t => {
+    this.viewport.renderedRangeStream.subscribe(t => {
       // in expanding row scrolling make not good apperance therefor close it.
       if (this.expandedElement && this.expandedElement.option && this.expandedElement.option.expand) {
         // this.expandedElement.option.expand = false;
@@ -254,13 +278,13 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   }
 
   rowStyle(row) {
-    let style: any =  row?.option?.style || {};
+    let style: any = row?.option?.style || {};
     if (this.setting.alternativeRowStyle && row.id % 2 === 0) {
       // style is high priority
-      style = { ...this.setting.alternativeRowStyle ,...style};
+      style = { ...this.setting.alternativeRowStyle, ...style };
     }
     if (this.setting.rowStyle) {
-      style = { ...this.setting.rowStyle ,...style};
+      style = { ...this.setting.rowStyle, ...style };
     }
     return style;
   }
@@ -271,10 +295,10 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
       clas = option[column.name] ? option[column.name].style : null;
     }
 
-    if ( clas === null) {
+    if (clas === null) {
       return column.cellClass;
     } else {
-      return {...clas, ...column.cellClass};
+      return { ...clas, ...column.cellClass };
     }
   }
 
@@ -284,10 +308,10 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
       style = option[column.name] ? option[column.name].style : null;
     }
 
-    if ( style === null) {
+    if (style === null) {
       return column.cellStyle;
     } else {
-      return {...style, ...column.cellStyle};
+      return { ...style, ...column.cellStyle };
     }
   }
 
@@ -307,21 +331,25 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   }
 
   currentContextMenuSender: any = {};
+
   onContextMenu(event: MouseEvent, column: TableField<T>, row: any) {
-    if(this.currentContextMenuSender?.time && (new Date().getTime() - this.currentContextMenuSender.time) < 500) {
+    if (this.currentContextMenuSender?.time && (new Date().getTime() - this.currentContextMenuSender.time) < 500) {
       return;
     }
     this.contextMenu.closeMenu();
-    if (this.contextMenuItems?.length === 0 ) {
+    if (this.contextMenuItems?.length === 0) {
       return;
     }
     event.preventDefault();
     this.contextMenuPosition.x = event.clientX + 'px';
     this.contextMenuPosition.y = event.clientY + 'px';
-    this.currentContextMenuSender = { column: column, row: row, time: new Date().getTime()};
+    this.currentContextMenuSender = { column: column, row: row, time: new Date().getTime() };
     this.contextMenu.menuData = this.currentContextMenuSender;
     this.contextMenu.menu.focusFirstItem('mouse');
-    this.onRowEvent.emit({ event: 'BeforContextMenuOpen', sender: {row: row, column: column, contextMenu: this.contextMenuItems}});
+    this.onRowEvent.emit({
+      event: 'BeforContextMenuOpen',
+      sender: { row: row, column: column, contextMenu: this.contextMenuItems }
+    });
     this.contextMenu.openMenu();
   }
 
@@ -332,33 +360,33 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
 
   tableMenuActionChange(e: TableMenuActionChange) {
     if (e.type === 'TableSetting') {
-       // this.saveSetting(e.data, null, false);
-       this.settingChange.emit({setting: this.tableSetting});
-       this.refreshColumn(this.tableSetting.columnSetting);
+      // this.saveSetting(e.data, null, false);
+      this.settingChange.emit({ setting: this.tableSetting });
+      this.refreshColumn(this.tableSetting.columnSetting);
     } else if (e.type === 'SaveSetting') {
       const newSetting = Object.assign({}, this.setting);
       delete newSetting.settingList;
       delete newSetting.currentSetting;
       newSetting.settingName = e.data;
       const settingIndex = (this.setting.settingList || []).findIndex(f => f.settingName === e.data);
-      if(settingIndex === -1) {
+      if (settingIndex === -1) {
         this.setting.settingList.push(JSON.parse(JSON.stringify(newSetting)));
-        this.settingChange.emit({setting: this.tableSetting});
+        this.settingChange.emit({ setting: this.tableSetting });
       } else {
         this.setting.settingList[settingIndex] = JSON.parse(JSON.stringify(newSetting));
-        this.settingChange.emit({setting: this.tableSetting});
+        this.settingChange.emit({ setting: this.tableSetting });
       }
     } else if (e.type === 'DeleteSetting') {
-      this.setting.settingList = this.setting.settingList.filter( s => s.settingName !== e.data.settingName);
-      this.settingChange.emit({setting: this.tableSetting});
+      this.setting.settingList = this.setting.settingList.filter(s => s.settingName !== e.data.settingName);
+      this.settingChange.emit({ setting: this.tableSetting });
     } else if (e.type === 'SelectSetting') {
       const newSetting = Object.assign({}, this.setting.settingList.find(s => s.settingName === e.data));
       newSetting.settingList = this.setting.settingList;
       newSetting.currentSetting = e.data;
       this.tableSetting = newSetting;
-      this.settingChange.emit({setting: this.tableSetting});
+      this.settingChange.emit({ setting: this.tableSetting });
       this.refreshColumn(this.tableSetting.columnSetting);
-    } else if(e.type === 'FullScreenMode') {
+    } else if (e.type === 'FullScreenMode') {
       requestFullscreen(this.tbl.elementRef);
     } else if (e.type === 'Download') {
       if (e.data === 'CSV') {
@@ -389,13 +417,13 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
 
       this.dialog.open(PrintTableDialogComponent, {
         width: '90vw',
-        data: this.printConfig,
+        data: this.printConfig
       });
     }
   }
 
   rowMenuActionChange(contextMenuItem: ContextMenuItem, row: any) {
-    this.onRowEvent.emit({ event: 'RowActionMenu', sender: {row: row, action: contextMenuItem}});
+    this.onRowEvent.emit({ event: 'RowActionMenu', sender: { row: row, action: contextMenuItem } });
     // this.rowActionMenuChange.emit({actionItem: contextMenuItem, rowItem: row });
   }
 
@@ -406,14 +434,14 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   }
 
   autoHeight() {
-    const minHeight =  this.headerHeight +
-                      (this.rowHeight + 1) * (this.dataSource.value.length) +
-                      this.footerHeight * 0;
+    const minHeight = this.headerHeight +
+      (this.rowHeight + 1) * (this.dataSource.value.length) +
+      this.footerHeight * 0;
     return minHeight.toString();
   }
 
-  reload_onClick(){
-    this.onTableEvent.emit({ sender: null, event: 'ReloadData'});
+  reload_onClick() {
+    this.onTableEvent.emit({ sender: null, event: 'ReloadData' });
   }
 
   /////////////////////////////////////////////////////////////////
@@ -453,10 +481,10 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
             const dx = this.resizeColumn.startX - event.pageX;
             width = this.resizeColumn.startWidth - rtl * dx;
           }
-          if ( this.resizeColumn.currentResizeIndex === index && width > this.minWidth ) {
+          if (this.resizeColumn.currentResizeIndex === index && width > this.minWidth) {
             this.resizeColumn.widthUpdate.next({
               i: index - (this.resizeColumn.resizeHandler === 'left' ? 1 : 0),
-              w: width,
+              w: width
             });
           }
         }
@@ -476,7 +504,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
 
 
   public expandRow(rowIndex: number, mode: boolean = true) {
-    if( rowIndex === null || rowIndex === undefined) {
+    if (rowIndex === null || rowIndex === undefined) {
       throw 'Row index is not defined.';
     }
     if (this.expandedElement === this.tvsDataSource.allData[rowIndex]) {
@@ -499,7 +527,7 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
         // }, 300);
         this.expandedElement = this.expandedElement === this.tvsDataSource.allData[rowIndex] ? null : this.tvsDataSource.allData[rowIndex];
         if (this.expandedElement.option === undefined || this.expandedElement.option === null) {
-          this.expandedElement.option = { expand: false};
+          this.expandedElement.option = { expand: false };
         }
         this.expandedElement.option.expand = true;
       }
@@ -513,30 +541,30 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
   }
 
   onCellClick(e, row, column: TableField<T>) {
-    if(column.cellTooltipEnable === true) {
+    if (column.cellTooltipEnable === true) {
       this.closeTooltip();/* Fixed BUG: Open Overlay when redirect to other route*/
-     // this.openTooltip(e,1);
+      // this.openTooltip(e,1);
       // this.openTooltip(e?.srcElement);
       // this.tooltipText = e.srcElement.scrollHeight;
     }
     this.onRowSelection(e, row, column);
     if (column.clickable !== false && (column.clickType === null || column.clickType === 'cell')) {
-      this.onRowEvent.emit({ event: 'CellClick', sender: {row: row, column: column} });
+      this.onRowEvent.emit({ event: 'CellClick', sender: { row: row, column: column } });
     }
   }
 
   onLabelClick(e, row, column: TableField<T>) {
     if (column.clickable !== false && (column.clickType === 'label')) {
-      this.onRowEvent.emit({ event: 'LabelClick', sender: {row: row, column: column} });
+      this.onRowEvent.emit({ event: 'LabelClick', sender: { row: row, column: column } });
     }
   }
 
   onRowDblClick(e, row) {
-    this.onRowEvent.emit({ event: e, sender: {row: row} });
+    this.onRowEvent.emit({ event: e, sender: { row: row } });
   }
 
   onRowClick(e, row) {
-    this.onRowEvent.emit({ event: 'RowClick', sender: {row: row} });
+    this.onRowEvent.emit({ event: 'RowClick', sender: { row: row } });
   }
 
   /************************************ Drag & Drop Column *******************************************/
@@ -558,11 +586,12 @@ export class DynamicMatTableComponent<T extends TableRow> extends TableCoreDirec
     // updates moved data and table, but not dynamic if more dropzones
     // this.dataSource.data = clonedeep(this.dataSource.data);
   }
+
   /************************************  *******************************************/
 
   copyProperty(from: any, to: any) {
     const keys = Object.keys(from);
-    keys.forEach( key => {
+    keys.forEach(key => {
       if (from[key] !== undefined && from[key] === null) {
         to[key] = Array.isArray(from[key]) ? Object.assign([], from[key]) : Object.assign({}, from[key]);
       }

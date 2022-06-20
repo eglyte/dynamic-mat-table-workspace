@@ -5,8 +5,8 @@ export class PersionLanguage implements LanguagePack {
   constructor() {
     console.log('international');
   }
-
-  menuLabels: MenuLabels = {
+  menuLabels: MenuLabels;
+/*  menuLabels: MenuLabels = {
     saveData: 'ذخیره داده ها ',
     columnSetting: 'تنظیمات ستون ها ',
     saveTableSetting: 'ذخیره  تنظیمات جدول',
@@ -27,7 +27,7 @@ export class PersionLanguage implements LanguagePack {
     pinNoneMode: 'هیچ کدام',
     pinStartMode: 'شروع',
     pinEndMode: 'پایان',
-  };
+  };*/
 
   paginatorLabels: MatPaginatorIntl = {
     changes: null,

@@ -11,16 +11,16 @@
     [showNoData]="showNoData"
     [showProgress]="showProgress"
     [pending]="pending"
-    [selection]="tableSelection"
+    [rowSelectionMode]="tableSelection"
     [pagination]="pagination"
-    [pagingMode]="'server'"
-    [class.conditional-class]="conditinalClass"
+    [pagingMode]="'server-side'"
+    [class.conditional-class]="conditionalClass"
     [setting]="setting"
     (settingChange)="table_onChangeSetting($event)"
-    (rowSelectionChange)="table_onRowSelectionChange($event)"
+    (onRowEvent)="table_onRowSelectionChange($event)"
     [dir]="direction"
     [printConfig]="printConfig"
-    [rowActionMenu]="rowActionMenu"
+    [rowContextMenuItems]="rowActionMenu"
   >
   </dynamic-mat-table>
 </mat-card>
@@ -59,9 +59,9 @@
   <button
     mat-raised-button
     color="primary"
-    (click)="conditinalClass = !conditinalClass"
+    (click)="conditionalClass = !conditionalClass"
   >
-    Conditional Class ({{ conditinalClass }})
+    Conditional Class ({{ conditionalClass }})
   </button>
   <button mat-raised-button color="primary" (click)="table.clear()">
     Clear Data
@@ -89,5 +89,5 @@
 </section>
 
 <div *ngFor="let item of eventLog">
-  {{ eventLog | json }}
+  {{ item }}
 </div>
